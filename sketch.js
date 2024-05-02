@@ -8,9 +8,9 @@ function setup() {
   textSize(24);
   // Configurar el input
   let input = createInput('');
-  input.position(width / 2 - 50, height + 10);
+  input.position(300, 565);
   let button = createButton('Configurar Hora');
-  button.position(input.x + input.width, input.y);
+  button.position(input.x + input.width + 15, input.y);
   button.mousePressed(setCustomTime);
 }
 
@@ -38,19 +38,19 @@ function drawClock(x, y, h, m, s, algorithm) {
   // Dibujar las manecillas
   switch (algorithm) {
     case "puntoPendiente":
-      drawHandPuntoPendiente(x, y, h % 12 * TWO_PI / 12 - HALF_PI, 50, 6); // Horas
-      drawHandPuntoPendiente(x, y, m * TWO_PI / 60 - HALF_PI, 70, 4); // Minutos
-      drawHandPuntoPendiente(x, y, s * TWO_PI / 60 - HALF_PI, 90, 2); // Segundos
+      drawHandPuntoPendiente(x, y, h % 12 * TWO_PI / 12 - HALF_PI, 50, 6, "red"); // Horas
+      drawHandPuntoPendiente(x, y, m * TWO_PI / 60 - HALF_PI, 70, 4, "blue"); // Minutos
+      drawHandPuntoPendiente(x, y, s * TWO_PI / 60 - HALF_PI, 90, 2, "green"); // Segundos
       break;
     case "DDA":
-      drawHandDDA(x, y, h % 12 * TWO_PI / 12 - HALF_PI, 50, 6); // Horas
-      drawHandDDA(x, y, m * TWO_PI / 60 - HALF_PI, 70, 4); // Minutos
-      drawHandDDA(x, y, s * TWO_PI / 60 - HALF_PI, 90, 2); // Segundos
+      drawHandDDA(x, y, h % 12 * TWO_PI / 12 - HALF_PI, 50, 6, "red"); // Horas
+      drawHandDDA(x, y, m * TWO_PI / 60 - HALF_PI, 70, 4, "blue"); // Minutos
+      drawHandDDA(x, y, s * TWO_PI / 60 - HALF_PI, 90, 2, "green"); // Segundos
       break;
     case "Bresenham":
-      drawHandPuntoPendiente(x, y, h % 12 * TWO_PI / 12 - HALF_PI, 50, 6); // Horas
-      drawHandPuntoPendiente(x, y, m * TWO_PI / 60 - HALF_PI, 70, 4); // Minutos
-      drawHandPuntoPendiente(x, y, s * TWO_PI / 60 - HALF_PI, 90, 2); // Segundos
+      drawHandPuntoPendiente(x, y, h % 12 * TWO_PI / 12 - HALF_PI, 50, 6, "red"); // Horas
+      drawHandPuntoPendiente(x, y, m * TWO_PI / 60 - HALF_PI, 70, 4, "blue"); // Minutos
+      drawHandPuntoPendiente(x, y, s * TWO_PI / 60 - HALF_PI, 90, 2, "green"); // Segundos
       break;
   }
 }
@@ -65,7 +65,8 @@ function setCustomTime() {
   hourOffset = customTime - new Date().getHours();
 }
 
-function drawHandPuntoPendiente(x, y, angle, length, weight) {
+function drawHandPuntoPendiente(x, y, angle, length, weight, color) {
+  stroke(color);
   let endX = x + cos(angle) * length;
   let endY = y + sin(angle) * length;
   let dx = endX - x;
@@ -83,7 +84,8 @@ function drawHandPuntoPendiente(x, y, angle, length, weight) {
   }
 }
 
-function drawHandDDA(x, y, angle, length, weight) {
+function drawHandDDA(x, y, angle, length, weight, color) {
+  stroke(color);
   let xEnd = x + cos(angle) * length;
   let yEnd = y + sin(angle) * length;
   let dx = xEnd - x;
@@ -101,41 +103,33 @@ function drawHandDDA(x, y, angle, length, weight) {
   }
 }
 
-function drawHandBresenham(x, y, angle, length, weight) {
-  // Calcular las coordenadas finales basadas en el ángulo y la longitud
-  let xEnd = x + cos(angle) * length;
-  let yEnd = y + sin(angle) * length;
-  
-  // Calcular las diferencias en las coordenadas x e y
+function calculateEndPoint(x, y, angle, length) {
+  let xEnd = Math.trunc(x + cos(angle) * length);
+  let yEnd = Math.trunc(y + sin(angle) * length);
+  return {x: xEnd, y: yEnd};
+}
+
+function drawHandBresenham(x, y, angle, length, weight, color) {
+  stroke(color);
+  let endPoint = calculateEndPoint(x, y, angle, length);
+  let xEnd = endPoint.x;
+  let yEnd = endPoint.y;
   let dx = abs(xEnd - x);
   let dy = abs(yEnd - y);
-  
-  // Determinar el sentido de incremento para x e y
-  let sx = (x < xEnd) ? 1 : -1;
-  let sy = (y < yEnd) ? 1 : -1;
-  
-  // Calcular el error inicial
+  let sx = x < xEnd ? 1 : -1;
+  let sy = y < yEnd ? 1 : -1;
   let err = dx - dy;
 
   strokeWeight(weight);
 
-  // Bucle principal para trazar la línea
   while (x !== xEnd || y !== yEnd) {
-    // Dibujar el punto actual
     point(x, y);
-    
-    // Calcular el error acumulado multiplicado por 2
     let e2 = 2 * err;
-    
-    // Si el error acumulado es mayor que el negativo de la diferencia en y,
-    // ajustar el error y actualizar la coordenada x
     if (e2 > -dy) {
       err -= dy;
       x += sx;
     }
-    
-    // Si el error acumulado es menor que la diferencia en x,
-    // ajustar el error y actualizar la coordenada y
+    if (x === xEnd && y === yEnd) break;
     if (e2 < dx) {
       err += dx;
       y += sy;
