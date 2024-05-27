@@ -8,7 +8,7 @@ function setup() {
   textSize(24);
   // Configurar el input
   let input = createInput('');
-  input.position(300, 565);
+  input.position(550, 800);
   let button = createButton('Configurar Hora');
   button.position(input.x + input.width + 15, input.y);
   button.mousePressed(setCustomTime);
