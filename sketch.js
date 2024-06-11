@@ -18,9 +18,9 @@ function draw() {
   background(255);
   // Calcular la hora para cada reloj
   let currentTime = new Date();
-  let hour1 = (currentTime.getHours() + hourOffset) % 12;
-  let hour2 = (currentTime.getHours() + hourOffset - 1) % 12;
-  let hour3 = (currentTime.getHours() + hourOffset + 8) % 12;
+  let hour1 = (currentTime.getHours() + hourOffset + 9) % 12;
+  let hour2 = (currentTime.getHours() + hourOffset + 3) % 12;
+  let hour3 = (currentTime.getHours() + hourOffset + 4) % 12;
   let minute = currentTime.getMinutes();
   let second = currentTime.getSeconds();
   // Dibujar los relojes
